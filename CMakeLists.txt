@@ -19,7 +19,7 @@ set(${PROJECT_NAME}_PROPERTIES "")
 set(${PROJECT_NAME}_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
 GET_FILES(${PROJECT_NAME}_SOURCES ${CMAKE_SOURCE_DIR}/src "*.cpp")
 
-ADD_QT_MODULES(${PROJECT_NAME} Core Network)
+ADD_QT_MODULES(${PROJECT_NAME} Core Network Concurrent)
 CONFIGURE_QT(${PROJECT_NAME})
 
 add_subdirectory(lib)
@@ -44,11 +44,12 @@ endif()
 set(SRC_FILES
     src/app/main.cpp
     src/dtos/DataMessage.cpp
+    src/server/ChatServer.cpp
 )
 list(APPEND ${PROJECT_NAME}_SOURCES ${SRC_FILES})
 
 set(Q_OBJECT_HEADERS
-
+    include/src/server/ChatServer.h
 )
 list(APPEND ${PROJECT_NAME}_SOURCES ${Q_OBJECT_HEADERS})
 

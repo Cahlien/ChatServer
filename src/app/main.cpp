@@ -1,5 +1,7 @@
 #include "src/app/main.h"
 #include "src/dtos/DataMessage.h"
+#include "src/server/ChatServer.h"
+
 #include <iostream>
 
 int main(int argc, char *argv[])
@@ -24,6 +26,9 @@ int main(int argc, char *argv[])
     qDebug() << dataMessage;
 
     std::cout << dataMessage << std::endl;
+
+    dc::ChatServer server{&app};
+    server.start(1234);
 
     return app.exec();
 }
