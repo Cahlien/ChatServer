@@ -1,5 +1,5 @@
 //
-// Created by Matth on 2/11/2023.
+// Created by Matthew Crowell on 2/11/2023.
 //
 
 #ifndef CHATSERVER_DataMessage_H
