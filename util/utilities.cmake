@@ -1,0 +1,96 @@
+macro(GET_FILES RESULT TARGET_DIRECTORIES PATTERN)
+    foreach(TARGET_DIRECTORY ${TARGET_DIRECTORIES})
+        file(GLOB_RECURSE FILES RELATIVE ${TARGET_DIRECTORY} ${TARGET_DIRECTORY}/${PATTERN})
+        foreach(FILE ${FILES})
+            list(APPEND ${RESULT} ${TARGET_DIRECTORY}/${FILE})
+        endforeach(FILE)
+    endforeach(TARGET_DIRECTORY)
+endmacro(GET_FILES)
+
+macro(GET_RELATIVE_PATHS RESULT FILES)
+    foreach(FILE ${FILES})
+        if(${FILE} IN_LIST ${RESULT})
+            list(REMOVE_ITEM ${RESULT} ${FILE})
+        endif(${FILE} IN_LIST ${RESULT})
+
+        file(RELATIVE_PATH RELATIVE_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${FILE})
+        list(APPEND ${RESULT} ${RELATIVE_FILES})
+    endforeach(FILE ${FILES})
+endmacro(GET_RELATIVE_PATHS)
+
+macro(GET_SUBDIRECTORIES RESULT CURRENT_DIRECTORY)
+    file(GLOB SUBDIRECTORIES RELATIVE ${CURRENT_DIRECTORY} ${CURRENT_DIRECTORY}/*)
+
+    foreach(SUBDIRECTORY ${SUBDIRECTORIES})
+        if(IS_DIRECTORY ${CURRENT_DIRECTORY}/${SUBDIRECTORY})
+            list(APPEND ${RESULT} ${CURRENT_DIRECTORY}/${SUBDIRECTORY})
+        endif()
+    endforeach()
+endmacro(GET_SUBDIRECTORIES)
+
+macro(GET_LIBRARIES RESULT CURRENT_DIRECTORY)
+    GET_SUBDIRECTORIES(LIBRARY_DIRECTORIES ${CURRENT_DIRECTORY})
+
+    foreach(DIRECTORY ${LIBRARY_DIRECTORIES})
+        get_filename_component(LIBRARY_NAME ${DIRECTORY} NAME)
+
+        list(APPEND ${RESULT} ${LIBRARY_NAME})
+        list(APPEND ${RESULT}_INCLUDE_DIRS ${DIRECTORY}/include)
+    endforeach(DIRECTORY ${SUBDIRECTORIES})
+endmacro(GET_LIBRARIES)
+
+macro(GET_TESTS CURRENT_DIRECTORY)
+    GET_SUBDIRECTORIES(TEST_DIRECTORIES ${CURRENT_DIRECTORY})
+
+    foreach(DIRECTORY ${TEST_DIRECTORIES})
+        if(IS_DIRECTORY ${DIRECTORY} AND EXISTS ${DIRECTORY}/CMakeLists.txt)
+            add_subdirectory(${DIRECTORY})
+        else()
+            GET_SUBDIRECTORIES(TEST_SUBDIRECTORIES ${DIRECTORY})
+
+            foreach(TEST_SUBDIRECTORY ${TEST_SUBDIRECTORIES})
+                if(IS_DIRECTORY ${TEST_SUBDIRECTORY} AND NOT ${TEST_SUBDIRECTORY} STREQUAL "${PREVIOUS_DIRECTORY}")
+                    set(PREVIOUS_DIRECTORY ${TEST_SUBDIRECTORY})
+                    GET_TESTS(${TEST_SUBDIRECTORY})
+                endif()
+
+            endforeach(TEST_SUBDIRECTORY)
+        endif(IS_DIRECTORY ${DIRECTORY} AND EXISTS ${DIRECTORY}/CMakeLists.txt)
+    endforeach(DIRECTORY ${SUBDIRECTORIES})
+endmacro(GET_TESTS)
+
+macro(ADD_QT_MODULES TARGET)
+    set(${TARGET}_REQUIRED_QT_MODULES "")
+    set(${TARGET}_REQUIRED_QT_LIBRARIES "")
+    set(${TARGET}_REQUIRED_QT_INCLUDE_DIRS "")
+
+    foreach(module ${ARGN})
+        list(APPEND ${TARGET}_REQUIRED_QT_MODULES ${module})
+        list(APPEND ${TARGET}_REQUIRED_QT_LIBRARIES Qt6${module}_LIBRARIES)
+        list(APPEND ${TARGET}_REQUIRED_QT_INCLUDE_DIRS Qt6${module}_INCLUDE_DIRS)
+    endforeach(module ${ARGN})
+endmacro(ADD_QT_MODULES)
+
+macro(CONFIGURE_QT TARGET)
+    if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+        add_compile_options(/Zc:__cplusplus)
+    endif()
+    find_package(Qt6 6.4 COMPONENTS ${${TARGET}_REQUIRED_QT_MODULES} REQUIRED)
+    if(Qt6_FOUND)
+        foreach(module ${${TARGET}_REQUIRED_QT_LIBRARIES})
+            list(APPEND ${TARGET}_LIBS ${${module}})
+        endforeach(module ${${TARGET}_REQUIRED_QT_LIBRARIES})
+
+        foreach(module ${${TARGET}_REQUIRED_QT_INCLUDE_DIRS})
+            list(APPEND ${TARGET}_INCLUDE_DIRS ${${module}})
+        endforeach(module ${${TARGET}_REQUIRED_QT_INCLUDE_DIRS})
+
+        set(CMAKE_AUTOMOC ON)
+    endif(Qt6_FOUND)
+
+    list(SORT ${TARGET}_LIBS)
+    list(REMOVE_DUPLICATES ${TARGET}_LIBS)
+
+    list(SORT ${TARGET}_INCLUDE_DIRS)
+    list(REMOVE_DUPLICATES ${TARGET}_INCLUDE_DIRS)
+endmacro(CONFIGURE_QT)

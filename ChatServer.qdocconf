@@ -1,0 +1,22 @@
+project = Chat Server
+description = A simple chat server
+version = 0.1.0
+authors = [ "Matthew Crowell" ]
+license = "MIT"
+language = Cpp
+
+namespace = dc
+sourcedirs += . src src/app src/dtos
+headerdirs = include
+
+sources.fileextensions += "*.cpp *.h"
+headers.fileextensions += *.H
+
+outputdir = docs
+outputformats = HTML
+HTML.subdir = html
+includepaths =  . \
+                .. \
+                C:\Qt-ROCS\6.4.1\msvc2019_64\include\QtCore \
+                C:\Qt-ROCS\6.4.1\msvc2019_64\doc
+HTML.header = "<h1>Chat Server</h1>"
