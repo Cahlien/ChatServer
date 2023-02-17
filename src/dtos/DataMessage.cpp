@@ -32,7 +32,6 @@ namespace dc
      */
     DataMessage::DataMessage(const QString& client)
     {
-        // remove any non-alphanumeric characters from the client name
         QString clientName{client};
         clientName.remove(QRegularExpression("[^a-zA-Z0-9]"));
 

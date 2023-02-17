@@ -23,7 +23,7 @@ namespace dc
             {
                 QTcpSocket *socket{m_server->nextPendingConnection()};
 
-                auto results{QtConcurrent::run([socket]()
+                auto results{QtConcurrent::run([socket]() -> void
                                                {
                                                    if (socket->waitForReadyRead())
                                                    {

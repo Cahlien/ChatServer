@@ -101,7 +101,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
             )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND linuxdeployqt ${CMAKE_CURRENT_BINARY_DIR}/bin/${PROJECT_NAME}.exe
+            COMMAND linuxdeploy --plugin qt -e ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME} --appdir /app/${CMAKE_BINARY_DIR}
             )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
