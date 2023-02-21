@@ -4,7 +4,8 @@
 
 #include "src/server/ChatServer.h"
 #include <QtConcurrent>
-#include <QTcpSocket>
+#include "src/client/ChatClient.h"
+#include "src/worker/SocketReader.h"
 
 /*!
  * \class dc::ChatServer
@@ -17,21 +18,7 @@ namespace dc
     ChatServer::ChatServer(QObject *parent)
             : QObject{parent}
     {
-        connect(m_server.get(), &QTcpServer::newConnection, this, [this]() -> void
-        {
-            while (m_server->hasPendingConnections())
-            {
-                QTcpSocket *socket{m_server->nextPendingConnection()};
-
-                auto results{QtConcurrent::run([socket]() -> void
-                                               {
-                                                   if (socket->waitForReadyRead())
-                                                   {
-                                                       qDebug() << "Received:" << socket->readAll();
-                                                   }
-                                               })};
-            }
-        });
+        connect(m_server.get(), &QTcpServer::pendingConnectionAvailable, this, &ChatServer::onPendingConnectionAvailable);
     }
 
     void ChatServer::start(quint16 port)
@@ -51,5 +38,16 @@ namespace dc
         m_server->close();
 
         qInfo() << "Server stopped";
+    }
+
+    void ChatServer::onPendingConnectionAvailable()
+    {
+        m_clients.emplace_back(nullptr, m_server.get());
+        connect(&m_clients.back(), &ChatClient::readyRead, this, &ChatServer::onReadyRead);
+    }
+
+    void ChatServer::onReadyRead()
+    {
+        auto result2{QtConcurrent::run(&SocketReader::run, new SocketReader{nullptr, qobject_cast<ChatClient*>(sender())->socket()})};
     }
 }

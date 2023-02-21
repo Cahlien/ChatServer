@@ -2,8 +2,6 @@
 #include "src/dtos/DataMessage.h"
 #include "src/server/ChatServer.h"
 
-#include <iostream>
-
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -19,13 +17,6 @@ int main(int argc, char *argv[])
             break;
         }
     }
-
-    dc::DataMessage dataMessage{"abc-123-xyz-789"};
-    dataMessage.add("type", "PrivateMessage");
-
-    qDebug() << dataMessage;
-
-    std::cout << dataMessage << std::endl;
 
     dc::ChatServer server{&app};
     server.start(1234);

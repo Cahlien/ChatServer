@@ -7,6 +7,9 @@
 
 #include <QObject>
 #include <QTcpServer>
+#include <vector>
+
+#include "src/client/ChatClient.h"
 
 namespace dc
 {
@@ -15,17 +18,18 @@ namespace dc
     Q_OBJECT
     public:
         explicit ChatServer(QObject *parent = nullptr);
-
         ~ChatServer() override = default;
 
-    public slots:
-
         void start(quint16 port);
-
         void stop();
+
+    public slots:
+        void onPendingConnectionAvailable();
+        void onReadyRead();
 
     private:
         QScopedPointer<QTcpServer> m_server{new QTcpServer{nullptr}};
+        std::vector<ChatClient> m_clients;
     };
 }
 #endif //CHATSERVER_CHATSERVER_H

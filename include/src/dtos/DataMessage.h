@@ -19,9 +19,11 @@ namespace dc
     class DataMessage
     {
     public:
+        DataMessage() = default;
         explicit DataMessage(const QString&);
         virtual ~DataMessage() = default;
 
+        [[nodiscard]]
         QStringView get(const QString&) const;
         void add(const QString&, const QString&);
 

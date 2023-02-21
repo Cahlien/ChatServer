@@ -45,11 +45,15 @@ set(SRC_FILES
     src/app/main.cpp
     src/dtos/DataMessage.cpp
     src/server/ChatServer.cpp
+    src/client/ChatClient.cpp
+    src/worker/SocketReader.cpp
 )
 list(APPEND ${PROJECT_NAME}_SOURCES ${SRC_FILES})
 
 set(Q_OBJECT_HEADERS
     include/src/server/ChatServer.h
+    include/src/client/ChatClient.h
+    include/src/worker/SocketReader.h
 )
 list(APPEND ${PROJECT_NAME}_SOURCES ${Q_OBJECT_HEADERS})
 
